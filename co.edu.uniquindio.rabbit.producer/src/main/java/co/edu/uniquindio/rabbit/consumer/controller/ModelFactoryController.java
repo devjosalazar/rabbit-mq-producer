@@ -6,6 +6,8 @@ import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.Connection;
 import com.rabbitmq.client.ConnectionFactory;
 
+import java.nio.charset.StandardCharsets;
+
 public class ModelFactoryController implements IModelFactoryService {
 
     RabbitFactory rabbitFactory;
@@ -34,14 +36,13 @@ public class ModelFactoryController implements IModelFactoryService {
 
     @Override
     public void producirMensaje(String queue, String message) {
-        try (Connection connection = connectionFactory.newConnection(); Channel channel = connection.createChannel()) {
+        try (Connection connection = connectionFactory.newConnection();
+             Channel channel = connection.createChannel()) {
             channel.queueDeclare(queue, false, false, false, null);
-            channel.basicPublish("", "publicacion", null, message.getBytes());
-            System.out.println("Mensaje enviado: " + message);
+            channel.basicPublish("", queue, null, message.getBytes(StandardCharsets.UTF_8));
+            System.out.println(" [x] Sent '" + message + "'");
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
-
-
 }
